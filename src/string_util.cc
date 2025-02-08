@@ -9,7 +9,6 @@
 #include <cstdio>
 #include <memory>
 #include <sstream>
-
 #include "arraysize.h"
 #include "benchmark/benchmark.h"
 
