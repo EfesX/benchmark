@@ -34,14 +34,14 @@ class BenchmarkTest : public testing::Test {
     functor_called = 0;
 
     bm = RegisterBenchmark("BM", [](State& st) {
-        for(auto _ : st) {
-        }
-      });
-      bm->Iterations(1);
-    }
+      for (auto _ : st) {
+      }
+    });
+    bm->Iterations(1);
+  }
 
   void TearDown() override { ClearRegisteredBenchmarks(); }
- };
+};
 
 // Test that Setup/Teardown can correctly take a lambda expressions
 TEST_F(BenchmarkTest, LambdaTestCopy) {
@@ -68,7 +68,9 @@ TEST_F(BenchmarkTest, LambdaTestMove) {
 // Test that Setup/Teardown can correctly take std::function
 TEST_F(BenchmarkTest, CallbackFunctionCopy) {
   callback_function setup_lambda = [this](const State&) { setup_calls++; };
-  callback_function teardown_lambda = [this](const State&) { teardown_calls++; };
+  callback_function teardown_lambda = [this](const State&) {
+    teardown_calls++;
+  };
   bm->Setup(setup_lambda);
   bm->Teardown(teardown_lambda);
   RunSpecifiedBenchmarks(&null_reporter);
