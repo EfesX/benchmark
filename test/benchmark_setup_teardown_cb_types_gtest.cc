@@ -1,57 +1,52 @@
-#include "gtest/gtest.h"
 #include "benchmark/benchmark.h"
+#include "gtest/gtest.h"
 
 using benchmark::BenchmarkReporter;
+using benchmark::callback_function;
+using benchmark::ClearRegisteredBenchmarks;
+using benchmark::RegisterBenchmark;
 using benchmark::RunSpecifiedBenchmarks;
 using benchmark::State;
-using benchmark::RegisterBenchmark;
-using benchmark::ClearRegisteredBenchmarks;
 using benchmark::internal::Benchmark;
-using benchmark::callback_function;
 
 static int functor_called = 0;
-
 struct Functor {
-  void operator()(const benchmark::State& /*unused*/) {
-    functor_called++;
-  }
+  void operator()(const benchmark::State& /*unused*/) { functor_called++; }
 };
 
 class NullReporter : public BenchmarkReporter {
-  public:
-   bool ReportContext(const Context& /*context*/) override { return true; }
-   void ReportRuns(const std::vector<Run>& /* report */) override {}
- };
+ public:
+  bool ReportContext(const Context& /*context*/) override { return true; }
+  void ReportRuns(const std::vector<Run>& /* report */) override {}
+};
 
 class BenchmarkTest : public testing::Test {
-  public:
-    Benchmark* bm;
-    NullReporter null_reporter;
+ public:
+  Benchmark* bm;
+  NullReporter null_reporter;
 
-    int setup_calls;
-    int teardown_calls;
+  int setup_calls;
+  int teardown_calls;
 
-    void SetUp() override {
-      setup_calls = 0;
-      teardown_calls = 0;
-      functor_called = 0;
+  void SetUp() override {
+    setup_calls = 0;
+    teardown_calls = 0;
+    functor_called = 0;
 
-      bm = RegisterBenchmark("BM", [](State& st){
-        for(auto _ : st){
+    bm = RegisterBenchmark("BM", [](State& st) {
+        for(auto _ : st) {
         }
       });
       bm->Iterations(1);
     }
 
-    void TearDown() override {
-      ClearRegisteredBenchmarks();
-    }
+  void TearDown() override { ClearRegisteredBenchmarks(); }
  };
 
 // Test that Setup/Teardown can correctly take a lambda expressions
 TEST_F(BenchmarkTest, LambdaTestCopy) {
-  auto setup_lambda = [this](const State&){ setup_calls++; };
-  auto teardown_lambda = [this](const State&){ teardown_calls++; };
+  auto setup_lambda = [this](const State&) { setup_calls++; };
+  auto teardown_lambda = [this](const State&) { teardown_calls++; };
   bm->Setup(setup_lambda);
   bm->Teardown(teardown_lambda);
   RunSpecifiedBenchmarks(&null_reporter);
@@ -61,8 +56,8 @@ TEST_F(BenchmarkTest, LambdaTestCopy) {
 
 // Test that Setup/Teardown can correctly take a lambda expressions
 TEST_F(BenchmarkTest, LambdaTestMove) {
-  auto setup_lambda = [this](const State&){ setup_calls++; };
-  auto teardown_lambda = [this](const State&){ teardown_calls++; };
+  auto setup_lambda = [this](const State&) { setup_calls++; };
+  auto teardown_lambda = [this](const State&) { teardown_calls++; };
   bm->Setup(std::move(setup_lambda));
   bm->Teardown(std::move(teardown_lambda));
   RunSpecifiedBenchmarks(&null_reporter);
@@ -72,8 +67,8 @@ TEST_F(BenchmarkTest, LambdaTestMove) {
 
 // Test that Setup/Teardown can correctly take std::function
 TEST_F(BenchmarkTest, CallbackFunctionCopy) {
-  callback_function setup_lambda = [this](const State&){ setup_calls++; };
-  callback_function teardown_lambda = [this](const State&){ teardown_calls++; };
+  callback_function setup_lambda = [this](const State&) { setup_calls++; };
+  callback_function teardown_lambda = [this](const State&) { teardown_calls++; };
   bm->Setup(setup_lambda);
   bm->Teardown(teardown_lambda);
   RunSpecifiedBenchmarks(&null_reporter);
@@ -83,8 +78,8 @@ TEST_F(BenchmarkTest, CallbackFunctionCopy) {
 
 // Test that Setup/Teardown can correctly take std::function
 TEST_F(BenchmarkTest, CallbackFunctionMove) {
-  callback_function setup_lambda = [this](const State&){ setup_calls++; };
-  callback_function teardown_lambda = [this](const State&){ teardown_calls++; };
+  callback_function setup_lambda = [this](const State&) { setup_calls++; };
+  callback_function teardown_lambda = [this](const State&) { teardown_calls++; };
   bm->Setup(std::move(setup_lambda));
   bm->Teardown(std::move(teardown_lambda));
   RunSpecifiedBenchmarks(&null_reporter);
