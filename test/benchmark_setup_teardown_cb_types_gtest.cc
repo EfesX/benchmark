@@ -81,7 +81,9 @@ TEST_F(BenchmarkTest, CallbackFunctionCopy) {
 // Test that Setup/Teardown can correctly take std::function
 TEST_F(BenchmarkTest, CallbackFunctionMove) {
   callback_function setup_lambda = [this](const State&) { setup_calls++; };
-  callback_function teardown_lambda = [this](const State&) { teardown_calls++; };
+  callback_function teardown_lambda = [this](const State&) {
+    teardown_calls++;
+  };
   bm->Setup(std::move(setup_lambda));
   bm->Teardown(std::move(teardown_lambda));
   RunSpecifiedBenchmarks(&null_reporter);
